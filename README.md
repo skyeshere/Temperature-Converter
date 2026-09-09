@@ -1,5 +1,5 @@
 # Temperature-Converter
-A simple rust CLI program to convert temperatures
+### A simple rust CLI program to convert temperatures
 ---
 ## Build
 ```bash
