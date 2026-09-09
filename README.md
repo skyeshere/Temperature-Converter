@@ -3,6 +3,12 @@ A simple rust CLI program to convert temperatures
 ---
 ## Build
 ```bash
+git clone ...
+```
+```bash
+cd Temp-Converter
+```
+```bash
 cargo run
 ```
 ---
