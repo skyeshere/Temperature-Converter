@@ -2,14 +2,12 @@ use std::io;
 
 use crate::TempUnits::{Celsius, Fahrenheit, Kelvin};
 
-#[derive(Debug)]
 enum TempUnits
 {
 	Celsius,
 	Fahrenheit,
 	Kelvin
 }
-
 
 //conversion functions
 fn c_to_f(c: f64) -> f64
@@ -59,6 +57,7 @@ fn parse_input(input: String)
 {
 	let mut first_exp: &str = "";
 	let mut second_exp: &str = "";
+	
 	//traverse input string
 	for i in 0..input.len()
 	{
@@ -70,7 +69,12 @@ fn parse_input(input: String)
 			second_exp = &input[i+2..].trim();
 			break;
 		}
-		
+	}
+
+	if first_exp == "" || second_exp == ""
+	{
+		println!("Input error, please try again");
+		return;
 	}
 
 	calculate_conversion(first_exp, second_exp);
@@ -78,22 +82,25 @@ fn parse_input(input: String)
 
 fn calculate_conversion(first: &str, second: &str)
 {
-	
 	let first_unit: &str = &first.to_string()[first.len()-1..]; //get unit from first_exp
-	let first_number_str: &str = &first.to_string()[..first.len()-1];
-	let first_number = first_number_str.parse::<f64>().unwrap(); //parse number part as float
-	let mut from: TempUnits = Celsius;
-	let mut convert_to: TempUnits = Celsius;
-	
-	// at this point both parts of the equation are "X[T1]" and "[T2]"", so getting the number should be trivial
+	let num_str: &str = &first.to_string()[..first.len()-1]; //split number from the unit
+	let num = num_str.parse::<f64>().unwrap(); //parse number part as float
 
+	let from: TempUnits;
+	let convert_to: TempUnits;
+	
+	// at this point both parts of the equation are "X[T1]" and "[T2]", so getting the number should be trivial
 	//match first unit so we know what to convert from
 	match first_unit
 	{
 		"C" => from = Celsius,
 		"F" => from = Fahrenheit,
 		"K" => from = Kelvin,
-		_ => println!("Something went wrong!")
+		_ => //exit to main loop if none are found, would give a bad result
+			{
+				println!("Cannot match first part to a unit!");
+				return;
+			}, 
 	}
 
 	//match second unit so we know what to convert to
@@ -102,30 +109,35 @@ fn calculate_conversion(first: &str, second: &str)
 		 "C" => convert_to = Celsius,
 		 "F" => convert_to = Fahrenheit,
 		 "K" => convert_to = Kelvin,
-		 _ => println!("Something went wrong!")
+		 _ => //exit to main loop if none are found, would give a bad result
+			{
+				println!("Cannot match second part to a unit!");
+				return;
+			},
 	}
 
-	//match from and convert_to enums to print correct conversion
+	//match from and convert_to enums to print correct conversion, nested match statements to cover all possibilities
 	match from
 	{
+		//match all conversions from Celsius
 		Celsius => match convert_to
 		{
 			Celsius => println!("This does not need converting..."),
-			Fahrenheit => println!("{:.2}F", c_to_f(first_number)),
-			Kelvin => println!("{:.2}K", c_to_k(first_number)),
+			Fahrenheit => println!("{} is {:.2}F", first, c_to_f(num)),
+			Kelvin => println!("{} is {:.2}K", first, c_to_k(num)),
 		}
-
+		//match all conversions from fahrenheit
 		Fahrenheit => match convert_to
 		{
-			Celsius => println!("{:.2}C", f_to_c(first_number)),
+			Celsius => println!("{} is {:.2}C", first, f_to_c(num)),
 			Fahrenheit => println!("This does not need converting..."),
-			Kelvin => println!("{:.2}K", f_to_k(first_number)),
+			Kelvin => println!("{} is {:.2}K", first, f_to_k(num)),
 		}
-
+		//match all conversions from kelvin
 		Kelvin => match convert_to
 		{
-			Celsius => println!("{:.2}C", k_to_c(first_number)),
-			Fahrenheit => println!("{:.2}F", k_to_f(first_number)),
+			Celsius => println!("{} is {:.2}C", first, k_to_c(num)),
+			Fahrenheit => println!("{} is {:.2}F", first, k_to_f(num)),
 			Kelvin => println!("This does not need converting..."),
 		}
 	}
@@ -135,15 +147,14 @@ fn main()
 {
 	println!("press Ctrl+C to exit, or enter 'exit'");
 	
-	
 	//main program loop	
-	while true
+	loop //this instead of while (true) because it does the exact same thing 
 	{
 		println!("\nsupported temps: C, F, K");
 		println!("enter a conversion (e.g. 25C to F):");
 		let input: String = take_user_input();
 
-		if input == "exit"
+		if input.to_lowercase() == "exit"
 		{
 			break;
 		}
@@ -151,15 +162,4 @@ fn main()
 		parse_input(input);
 	}
 	println!("exiting...");
-
 }
-	/*
-		runtime:
-			ask for queery in form X[T1] to [T2]
-			where [T1] and [T2] are different TempUnits
-
-			parse queery to determine which conversion to perform
-				- if X[T1] to  [T1], dont do anything and display a short message saying as such
-			
-			display new temperature in form X[T1] is Y[T2]
-	 */
